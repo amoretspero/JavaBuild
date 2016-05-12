@@ -1,0 +1,35 @@
+{
+  "files": [
+    "AnalyticalSolverCalc",
+    "AnalyticalSolverMain",
+    "GaussianCalc",
+    "GaussianMain",
+    "PiCalc",
+    "PiMain",
+    "RootCalc",
+    "RootMain",
+    "SetMenuMakerCalc",
+    "SetMenuMakerMain",
+    "SumCalc",
+    "SumMain",
+    "TupleCalc",
+    "TupleMain",
+    "WeightCalc",
+    "WeightMain"
+  ],
+  "mains": [
+    "AnalyticalSolverMain",
+    "GaussianMain",
+    "PiMain",
+    "RootMain",
+    "SetMenuMakerMain",
+    "SumMain",
+    "TupleMain",
+    "WeightMain"
+  ],
+  "CompileOptions": {
+    "ClassPath": "",
+    "CharacterEncoding": "",
+    "TerminateOnWarning": false
+  }
+}
