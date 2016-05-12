@@ -21,7 +21,7 @@ Go to source folder and type below.
   
 ### JSON parsing    
 JSON parsing uses <b>Newtonsoft.Json</b> library.  
-They can be found at <link rel="http://www.newtonsoft.com/json" value="http://www.newtonsoft.com/json"/>  
+They can be found at [http://www.newtonsoft.com](http://www.newtonsoft.com)
 License about this library can be found in above link.  
 
 ## License  
