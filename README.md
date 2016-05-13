@@ -3,10 +3,17 @@ Simple build program for java projects.
 This is for **windows-only**.  
 Other platform support will be added soon.
   
+  
 ## Supported Features  
   
 ### Java file compilation  
 JavaBuild will compile all <code>.java</code> files listed in "files" array.  
+You should omit file type extension <code>.java</code>  
+  
+### Run-After-Build  
+JavaBuild supports running programs right after build.  
+When specified in "runs" array, JavaBuild will automatically run them when all build is successful.  
+File names in "runs" array should be included in "mains" array.  
 You should omit file type extension <code>.java</code>  
   
 ### Java compile options  
@@ -28,6 +35,7 @@ Default Values :
 **boolean** - **<code>false</code>**  
 **string** - **<code>""</code>**
   
+  
 ## Usage  
 Below example code is for build file.  
 It should have name <code>build.json</code>  
@@ -35,9 +43,15 @@ It should have name <code>build.json</code>
 {
   "files" : [
     "AnalyticalSolverCalc",
-    "AnalyticalSolverMain"
+    "AnalyticalSolverMain",
+    "PiCalc",
+    "PiMain"
   ],
   "mains" : [
+    "AnalyticalSolverMain",
+    "PiMain"
+  ],
+  "runs" : [
     "AnalyticalSolverMain"
   ],
   "CompileOptions" : {
@@ -51,6 +65,31 @@ It should have name <code>build.json</code>
 After making <code>build.json</code> file, just place execution file - <code>JavaBuild.exe</code>  
 in folder that have "files" there.  
 **Run it!**
+  
+  
+## Requirements  
+  
+### For running JavaBuild  
+**.NET Framework 4.6 or higher** - 
+* [Get .NET Framework 4.6.1](https://www.microsoft.com/ko-kr/download/details.aspx?id=49981)  
+
+Appropriate version of **JDK(Java Development Kit)** - 
+* If you have eclipse or other Java IDE installed, this should not be problem.  
+* If not, get the latest one.  
+
+**Add JDK binary folder to PATH** - 
+* Settings -> System and Security -> Advanced System Settings -> Environment variables... -> **Path** of **System Variables** -> Add your jdk binary path. 
+* Most cases (if you don't changed initial install directory) JDK binary can be found at <code>C:\Program Files (x86)\Java\jdk(version)\bin</code>  
+* To check if added well, run **Command prompt** and type <code>java</code> then press enter. If successful, this commands will show help messages.  
+  
+### For writing <code>build.json</code> file  
+Write it with your favorite code editor.  
+Just remember it should be valid json file!  
+You can use example at **Usage** section.  
+  
+### For writing java code.  
+Again, write it with your favorite code editor.  
+  
   
 ## Build execution file  
   
@@ -69,13 +108,15 @@ Go to source folder and type below.
 ## Download execution file  
 Download the <code>JavaBuild.exe</code> file in <code>Download</code> folder.  
   
+  
 ## Notice  
   
 ### JSON parsing    
 JSON parsing uses <b>Newtonsoft.Json</b> library.  
 They can be found at [http://www.newtonsoft.com](http://www.newtonsoft.com)  
 License about this library can be found in above link.  
-
+  
+  
 ## License  
 This program is open source under MIT license.  
   

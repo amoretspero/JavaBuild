@@ -6,27 +6,41 @@ open System.Text
 open System.Management
 open Newtonsoft.Json
 
-type JavaBuild(files : string [], mains : string [], CompileOptions : Dictionary<string, string>) =
+type JavaBuild(files : string [], mains : string [], runs: string[], CompileOptions : Dictionary<string, string>) =
     let _files = files
     let _mains = mains
+    let _runs = runs
     let _CompileOptions = CompileOptions
 
     member jb.files = _files
     member jb.mains = _mains
+    member jb.runs = 
+        if ((Array.except mains runs).Length > 0) then
+            failwith ("There are " + (Array.except mains runs).Length.ToString() + " run files not included in main files.")
+            null
+        else
+            _runs
     member jb.CompileOptions = _CompileOptions
 
     member jb.printFiles() =
         for file in _files do
             printfn "Input File : %s" file
+
     member jb.printMains() =
         for main in _mains do
             printfn "Input File with main : %s" main
+
+    member jb.printRuns() = 
+        for run in _runs do
+            printfn "Input file to run after build : %s" run
+
     member jb.printCompileOptions() =
         for co in _CompileOptions do
             if (co.Value = "") then
                 printfn "Option Name : %s, Option Value : (none)" co.Key
             else
                 printfn "Option Name : %s, Option Value : %s" co.Key co.Value
+
     member jb.GetFormalOption(compileOption : string) =
         match compileOption with
         | "ClassPath" -> "-classpath"
@@ -39,12 +53,14 @@ type JavaBuild(files : string [], mains : string [], CompileOptions : Dictionary
             else
                 ""
         | _ -> ""
+
     member jb.GetFormalOptionValue(compilerOption : string, optionValue : string) =
         match compilerOption with
         | "ClassPath" -> optionValue
         | "CharacterEncoding" -> optionValue
         | "TerminateOnWarning" -> ""
         | _ -> ""
+
     member jb.CompilerOptionsToString() =
         let mutable res = ""
         for co in _CompileOptions do
@@ -58,6 +74,7 @@ let buildFile = JsonConvert.DeserializeObject<JavaBuild>(File.ReadAllText("./bui
 printfn "Generated buildFile. files : %d, mains : %d, CompileOptions: %d" buildFile.files.Length buildFile.mains.Length buildFile.CompileOptions.Count
 buildFile.printFiles()
 buildFile.printMains()
+buildFile.printRuns()
 buildFile.printCompileOptions()
 
 let compileSuccess = ref ([] : string list)
@@ -107,3 +124,26 @@ for file in compileFail.Value do
 printfn "\nSUCCESS: %d files.\nFAIL: %d files.\n" compileSuccess.Value.Length compileFail.Value.Length
 printfn "END of BUILD."
 printfn "=================================================="
+
+if (buildFile.runs <> null) then
+    printfn "=================================================="
+    printfn "Start of RUN-AFTER-BUILD"
+    printfn "\n"
+    for run in buildFile.runs do
+        printfn "Now running %s..." run
+        let proc = new System.Diagnostics.Process()
+        let procStartInfo = new System.Diagnostics.ProcessStartInfo()
+        procStartInfo.WindowStyle <- System.Diagnostics.ProcessWindowStyle.Normal
+        procStartInfo.FileName <- "java "
+        procStartInfo.Arguments <- run
+        procStartInfo.UseShellExecute <- false
+        printfn "Command to be executed is : '%s'" (procStartInfo.FileName + procStartInfo.Arguments)
+        proc.StartInfo <- procStartInfo
+        proc.Start() |> ignore
+        proc.WaitForExit()
+        printfn "Execution of %s finished." run
+        printfn "\n"
+    printfn "End of RUN_AFTER_BUILD"
+    printfn "=================================================="
+printfn "Press any key to exit..."
+Console.ReadKey() |> ignore
