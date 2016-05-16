@@ -27,6 +27,10 @@
     "TupleMain",
     "WeightMain"
   ],
+  "runs": [
+    "AnalyticalSolverMain",
+    "WeightMain"
+  ],
   "CompileOptions": {
     "ClassPath": "",
     "CharacterEncoding": "",

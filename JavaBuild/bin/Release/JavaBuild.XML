@@ -2,5 +2,8 @@
 <doc>
 <assembly><name>JavaBuild</name></assembly>
 <members>
+<member name="T:Program.JavaBuild">
+ <summary>Class for java build file.</summary>
+</member>
 </members>
 </doc>
