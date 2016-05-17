@@ -35,6 +35,11 @@ Default Values :
 **boolean** - **<code>false</code>**  
 **string** - **<code>""</code>**
   
+### Compile only updated file  
+JavaBuild keeps track of last compilation time for each class files.  
+If source file is not updated since class file has been compiled, JavaBuild will pass that file with UP-TO-DATE message.  
+Tracking info is in <code>(Location Of .build file)/.JavaBuildHistory</code>.  
+  
   
 ## Usage  
 Below example code is for build file.  
@@ -103,7 +108,7 @@ If you have F# installed, just **Run the solution!**
   
 ### Build Executable - Command line  
 Go to source folder and type below.  
-<code>fsc -o:JavaBuild.exe --target:exe --standalone --staticlink:Newtonsoft.Json -r:Newtonsoft.Json Program.fs</code>  
+<code>fsc -o:JavaBuild.exe --target:exe --standalone --staticlink:Newtonsoft.Json -r:.\bin\Debug\Newtonsoft.Json.dll Program.fs</code>  
   
 ## Download execution file  
 Download the <code>JavaBuild.exe</code> file in <code>Download</code> folder.  
