@@ -2,8 +2,75 @@
 <doc>
 <assembly><name>JavaBuild</name></assembly>
 <members>
-<member name="T:Program.JavaBuild">
- <summary>Class for java build file.</summary>
+<member name="M:JavaBuild.BuildInfo.printRuns">
+ <summary>Print run-after-build files.</summary>
+</member>
+<member name="M:JavaBuild.BuildInfo.printMains">
+ <summary>Print files containing main method.</summary>
+</member>
+<member name="M:JavaBuild.BuildInfo.printFiles">
+ <summary>Print source files to be compiled.</summary>
+</member>
+<member name="M:JavaBuild.BuildInfo.printCompileOptions">
+ <summary>Print compile options.</summary>
+</member>
+<member name="M:JavaBuild.BuildInfo.isUpdated(System.String)">
+ <summary>Check if source file is updated since last build.</summary>
+ <param name="fileName">File name to be checked, without file name extension.</param>
+ <returns>True when it is updated, false when it is not updated.</returns>
+</member>
+<member name="P:JavaBuild.BuildInfo.runs">
+ <summary>Files to be run after build is successful.
+ Set of run-after-build files should be subset of "mains".</summary>
+</member>
+<member name="P:JavaBuild.BuildInfo.mains">
+ <summary>Files containing main method.</summary>
+</member>
+<member name="P:JavaBuild.BuildInfo.files">
+ <summary>Files to be compiled.</summary>
+</member>
+<member name="P:JavaBuild.BuildInfo.CompileOptions">
+ <summary>Compile options</summary>
+</member>
+<member name="P:JavaBuild.BuildInfo.BuildHistory">
+ <summary>Build history</summary>
+</member>
+<member name="M:JavaBuild.BuildInfo.WriteBuildHistory">
+ <summary>Write build history to build history file.</summary>
+</member>
+<member name="M:JavaBuild.BuildInfo.UpdateBuildHistory">
+ <summary>Update build history.</summary>
+</member>
+<member name="M:JavaBuild.BuildInfo.PrintBuildHistory">
+ <summary>Print build history.</summary>
+</member>
+<member name="M:JavaBuild.BuildInfo.GetFormalOptionValue(System.String,System.String)">
+ <summary>Get formal option value for "compilerOption" and given "optionValue".</summary>
+ <param name="compilerOption">Name of compiler option.</param>
+ <param name="optionValue">Value of option to be formalized.</param>
+ <returns>Formalized option value for "compilerOption".</returns>
+</member>
+<member name="M:JavaBuild.BuildInfo.GetFormalOption(System.String)">
+ <summary>Get formal name for java compiler - javac.</summary>
+ <param name="compileOption">Compile option in build file.</param>
+ <returns>Formal compile option name.</returns>
+</member>
+<member name="M:JavaBuild.BuildInfo.GetBuildHistory">
+ <summary>Reads build history for current folder.
+ If build history file does not exist, get information for files and create one.
+ Read or newly created build history will be stored into _BuildHistory.</summary>
+ <returns>Returns true when there already exists build history file and successfully read from it,
+ false when no build history file existed and should create one.</returns>
+</member>
+<member name="M:JavaBuild.BuildInfo.CompilerOptionsToString">
+ <summary>Translates build file's compile options to javac compile option string.</summary>
+ <returns>Generated javac compile option string.</summary>
+</member>
+<member name="M:JavaBuild.BuildInfo.Build(JavaBuild.BuildInfo)">
+ <summary>Build current project. Things done are : Compilation, updating build history, printing build result and run-after-build.</summary>
+</member>
+<member name="T:JavaBuild.BuildInfo">
+ <summary>Class for java build information file.</summary>
 </member>
 </members>
 </doc>

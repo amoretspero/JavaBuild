@@ -4,6 +4,10 @@ This is for **windows-only**.
 Other platform support will be added soon.
   
   
+## Status  
+Version : 0.4.2.1  
+Stable : Stable  
+  
 ## Supported Features  
   
 ### Java file compilation  
