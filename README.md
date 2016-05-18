@@ -5,8 +5,15 @@ Other platform support will be added soon.
   
   
 ## Status  
-Version : 0.4.2.1  
+Version : 0.4.2.2  
 Stable : Stable  
+  
+## Bugfix  
+  
+### 0.4.2.1 -> 0.4.2.2  
+Fixed bug with build history management.  
+Before build, JavaBuild will get build history file, update it and re-write it again.  
+As before, if build history does not exist, it will just make one.  
   
 ## Supported Features  
   

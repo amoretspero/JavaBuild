@@ -8,7 +8,7 @@ open System.Text
 open System.Management
 open Newtonsoft.Json
 
-/// <summary>Class for java build information file.</summary>
+/// <summary>Class for java build information file.</summary>  
 type BuildInfo(files : string [], mains : string [], runs: string[], CompileOptions : Dictionary<string, string>) =
     
     // private members ----------------------------------------------

@@ -16,6 +16,9 @@ printfn "Generated buildFile. files : %d, mains : %d, CompileOptions: %d" buildF
 let getBuildHistoryResult = buildFile.GetBuildHistory()
 if not getBuildHistoryResult then
     buildFile.WriteBuildHistory()
+else
+    buildFile.UpdateBuildHistory()
+    buildFile.WriteBuildHistory()
 
 // Print build file info.
 buildFile.printFiles()

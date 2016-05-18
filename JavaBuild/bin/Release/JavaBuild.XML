@@ -70,7 +70,7 @@
  <summary>Build current project. Things done are : Compilation, updating build history, printing build result and run-after-build.</summary>
 </member>
 <member name="T:JavaBuild.BuildInfo">
- <summary>Class for java build information file.</summary>
+ <summary>Class for java build information file.</summary>  
 </member>
 </members>
 </doc>
