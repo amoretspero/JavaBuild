@@ -11,6 +11,9 @@
 <member name="M:JavaBuild.BuildInfo.printFiles">
  <summary>Print source files to be compiled.</summary>
 </member>
+<member name="M:JavaBuild.BuildInfo.printConfigurations">
+ <summary>Print JavaBuild configurations.</summary>
+</member>
 <member name="M:JavaBuild.BuildInfo.printCompileOptions">
  <summary>Print compile options.</summary>
 </member>
@@ -28,6 +31,9 @@
 </member>
 <member name="P:JavaBuild.BuildInfo.files">
  <summary>Files to be compiled.</summary>
+</member>
+<member name="P:JavaBuild.BuildInfo.Configurations">
+ <summary>JavaBuild configurations</summary>
 </member>
 <member name="P:JavaBuild.BuildInfo.CompileOptions">
  <summary>Compile options</summary>
@@ -54,6 +60,10 @@
  <summary>Get formal name for java compiler - javac.</summary>
  <param name="compileOption">Compile option in build file.</param>
  <returns>Formal compile option name.</returns>
+</member>
+<member name="M:JavaBuild.BuildInfo.GetConfigurationValue(System.String)">
+ <summary>Get configuration value for given configuration key.</summary>
+ <param name="key">Key to find the value of configuration.</param>
 </member>
 <member name="M:JavaBuild.BuildInfo.GetBuildHistory">
  <summary>Reads build history for current folder.

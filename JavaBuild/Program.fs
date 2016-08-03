@@ -15,10 +15,14 @@ printfn "Generated buildFile. files : %d, mains : %d, CompileOptions: %d" buildF
 // If not exists, make one with current build configuration.
 let getBuildHistoryResult = buildFile.GetBuildHistory()
 if not getBuildHistoryResult then
+    printfn "build.json file does not exists. Making new one..."
     buildFile.WriteBuildHistory()
+    printfn "Successfully generated build.json file."
 else
-    buildFile.UpdateBuildHistory()
-    buildFile.WriteBuildHistory()
+    printfn "build.json file already exists."
+    //buildFile.UpdateBuildHistory()
+    //buildFile.WriteBuildHistory()
+    printfn "Successfully updated build.json file."
 
 // Print build file info.
 buildFile.printFiles()

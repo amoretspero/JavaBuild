@@ -1,0 +1,11 @@
+C:\Users\Jiung\Documents\F#\JavaBuild\JavaBuild\bin\Debug\JavaBuild.exe.config
+C:\Users\Jiung\Documents\F#\JavaBuild\JavaBuild\bin\Debug\JavaBuild.XML
+C:\Users\Jiung\Documents\F#\JavaBuild\JavaBuild\bin\Debug\JavaBuild.exe
+C:\Users\Jiung\Documents\F#\JavaBuild\JavaBuild\bin\Debug\JavaBuild.pdb
+C:\Users\Jiung\Documents\F#\JavaBuild\JavaBuild\bin\Debug\FSharp.Core.dll
+C:\Users\Jiung\Documents\F#\JavaBuild\JavaBuild\bin\Debug\Microsoft.Management.Infrastructure.dll
+C:\Users\Jiung\Documents\F#\JavaBuild\JavaBuild\bin\Debug\Newtonsoft.Json.dll
+C:\Users\Jiung\Documents\F#\JavaBuild\JavaBuild\bin\Debug\FSharp.Core.xml
+C:\Users\Jiung\Documents\F#\JavaBuild\JavaBuild\bin\Debug\Newtonsoft.Json.xml
+C:\Users\Jiung\Documents\F#\JavaBuild\JavaBuild\obj\Debug\JavaBuild.exe
+C:\Users\Jiung\Documents\F#\JavaBuild\JavaBuild\obj\Debug\JavaBuild.pdb
