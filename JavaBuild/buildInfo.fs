@@ -8,8 +8,13 @@ open System.Text
 open System.Management
 open Newtonsoft.Json
 
+/// <summary>Thrown when file is not found.</summary>
 exception FileNotFound
+
+/// <summary>Thrown when given configuration key is not a valid configuration.</summary>
 exception InvalidConfigurationKey
+
+/// <summary>Thrown when build history file has invalid value, i.e. invalid file name or date.</summary>
 exception InvalidBuildHistory
 
 /// <summary>Class for java build information file.</summary>  
@@ -207,7 +212,8 @@ type BuildInfo(files : Dictionary<string, string> [], mains : string [], runs: s
                 else
                     printfn "Build History - %s (source file) - Last Build Time : %A" buildHistoryEnumJava.Current.Key buildHistoryEnumJava.Current.Value.Value
 
-    /// <summary>Update build history.</summary>
+    /// <summary>Update build history. To get the build time, this method will check for class file and get the last write time of that file.
+    /// If corresponding class file does not exists, it will assume that source file has not been compiled yet.</summary>
     member bi.UpdateBuildHistory() =
         if not (File.Exists("./.JavaBuildHistory")) then
             failwith "Build History file missing."
@@ -234,7 +240,9 @@ type BuildInfo(files : Dictionary<string, string> [], mains : string [], runs: s
                     failwith ("Source file missing : " + sourceFileLocation)
             _BuildHistory <- buildHistory
 
-    /// <summary>Check if source file is updated since last build.</summary>
+    /// <summary>Check if source file is updated since last build.
+    /// This method assumes updated when source file has been moved, or when build time is None, 
+    /// or when current source file has been modified after build time.</summary>
     /// <param name="fileName">File name to be checked, without file name extension.</param>
     /// <returns>True when it is updated, false when it is not updated.</returns>
     member bi.isUpdated(fileName : string) =
@@ -282,7 +290,8 @@ type BuildInfo(files : Dictionary<string, string> [], mains : string [], runs: s
         else
             File.Exists(System.IO.Path.Combine(System.IO.Path.GetFullPath(location), fileName) + ".class")
 
-    /// <summary>Build current project. Things done are : Compilation, updating build history, printing build result and run-after-build.</summary>
+    /// <summary>Build current project. 
+    /// Things done are : Get build history -> Compilation -> Updating build history -> Printing build result -> Run-After-Build</summary>
     member bi.Build(buildFile : BuildInfo) =
         let compileSuccess = ref ([] : string list)
         let compileFail = ref ([] : string list)
