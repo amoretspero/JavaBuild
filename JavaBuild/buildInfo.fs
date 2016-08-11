@@ -10,6 +10,7 @@ open Newtonsoft.Json
 
 exception FileNotFound
 exception InvalidConfigurationKey
+exception InvalidBuildHistory
 
 /// <summary>Class for java build information file.</summary>  
 type BuildInfo(files : Dictionary<string, string> [], mains : string [], runs: string[], CompileOptions : Dictionary<string, string>, Configurations : Dictionary<string, string>) =
@@ -26,7 +27,9 @@ type BuildInfo(files : Dictionary<string, string> [], mains : string [], runs: s
     /// <summary>Check if given directory is where the build.json file resides.</summary>
     /// <param name="dir">Directory to be checked. It can be relative or absolute.</param>
     let directoryCheck (dir : string) =
-        if not (System.IO.Directory.Exists(dir)) then
+        if dir = "" then
+            true
+        else if not (System.IO.Directory.Exists(dir)) then
             false
         else
             let buildJsonDir = System.IO.Directory.GetCurrentDirectory()
@@ -160,12 +163,15 @@ type BuildInfo(files : Dictionary<string, string> [], mains : string [], runs: s
             for file in _files do
                 let fileName = file.Item("name")
                 let location = file.Item("location")
-                if not (File.Exists(System.IO.Path.Combine(location,fileName) + ".java")) then
+                let fullLocation = if location = "" then System.IO.Path.GetFullPath(".\\") else System.IO.Path.GetFullPath(location)
+                let sourceFileLocation = System.IO.Path.Combine(fullLocation, fileName) + ".java"
+                let classFileLocation = 
+                    if bi.GetConfigurationValue("AutomaticClassFileCopy") = "false" then
+                        System.IO.Path.Combine(fullLocation, fileName) + ".class"
+                    else
+                        System.IO.Path.Combine(System.IO.Path.GetFullPath(".\\"), fileName) + ".class"
+                if not (File.Exists(sourceFileLocation)) then
                     raise FileNotFound
-                else
-                    if not (File.Exists(System.IO.Path.Combine(location,fileName) + ".class")) then
-                        historyFile.Remove(fileName + ".class") |> ignore
-                        historyFile.Add((fileName + ".class"), None)
             _BuildHistory <- historyFile
             true
         else
@@ -174,13 +180,14 @@ type BuildInfo(files : Dictionary<string, string> [], mains : string [], runs: s
             for file in _files do
                 let fileName = file.Item("name")
                 let location = file.Item("location")
-                if File.Exists(System.IO.Path.Combine(location,fileName)+".java") then
-                    if File.Exists(System.IO.Path.Combine(location,fileName)+".class") then 
-                        buildHistory.Add((fileName + ".java"), Some(File.GetLastWriteTimeUtc(System.IO.Path.Combine(location,fileName)+".java")))
-                        buildHistory.Add((fileName + ".class"), Some(File.GetLastWriteTimeUtc(System.IO.Path.Combine(location,fileName)+".class")))
+                let fullLocation = if location = "" then System.IO.Path.GetFullPath(".\\") else System.IO.Path.GetFullPath(location)
+                let sourceFileLocation = System.IO.Path.Combine(fullLocation, fileName) + ".java"
+                let classFileLocation = System.IO.Path.Combine(fullLocation, fileName) + ".class"
+                if File.Exists(sourceFileLocation) then
+                    if File.Exists(classFileLocation) then 
+                        buildHistory.Add(sourceFileLocation, Some(File.GetLastWriteTimeUtc(classFileLocation)))
                     else
-                        buildHistory.Add((fileName + ".java"), Some(File.GetLastWriteTimeUtc(System.IO.Path.Combine(location,fileName)+".java")))
-                        buildHistory.Add((fileName + ".class"), None)
+                        buildHistory.Add(sourceFileLocation, None)
             _BuildHistory <- buildHistory
             printfn "Successfully created build history. Count : %d" _BuildHistory.Count
             false
@@ -196,17 +203,9 @@ type BuildInfo(files : Dictionary<string, string> [], mains : string [], runs: s
         while (buildHistoryEnumJava.MoveNext()) do
             if (buildHistoryEnumJava.Current.Key.Contains(".java")) then
                 if buildHistoryEnumJava.Current.Value.IsNone then
-                    printfn "Build History - %s (source file) - Last Write Time : (none)" buildHistoryEnumJava.Current.Key
+                    printfn "Build History - %s (source file) - Last Build Time : (none)" buildHistoryEnumJava.Current.Key
                 else
-                    printfn "Build History - %s (source file) - Last Write Time : %A" buildHistoryEnumJava.Current.Key buildHistoryEnumJava.Current.Value.Value
-
-        let mutable buildHistoryEnumClass = _BuildHistory.GetEnumerator()
-        while (buildHistoryEnumClass.MoveNext()) do
-            if (buildHistoryEnumClass.Current.Key.Contains(".class")) then
-                if buildHistoryEnumClass.Current.Value.IsNone then
-                    printfn "Build History - %s (class file) - Last Write Time : (none)" buildHistoryEnumClass.Current.Key
-                else
-                    printfn "Build History - %s (class file) - Last Write Time : %A" buildHistoryEnumClass.Current.Key buildHistoryEnumClass.Current.Value.Value
+                    printfn "Build History - %s (source file) - Last Build Time : %A" buildHistoryEnumJava.Current.Key buildHistoryEnumJava.Current.Value.Value
 
     /// <summary>Update build history.</summary>
     member bi.UpdateBuildHistory() =
@@ -217,19 +216,22 @@ type BuildInfo(files : Dictionary<string, string> [], mains : string [], runs: s
             for file in _files do
                 let fileName = file.Item("name")
                 let location = file.Item("location")
-                if File.Exists(System.IO.Path.Combine(location,fileName)+".java") then
-                    if File.Exists(System.IO.Path.Combine(location,fileName)+".class") then
-                        buildHistory.Remove(fileName + ".java") |> ignore
-                        buildHistory.Remove(fileName + ".class") |> ignore
-                        buildHistory.Add((fileName + ".java"), Some(File.GetLastWriteTimeUtc(System.IO.Path.Combine(location,fileName)+".java")))
-                        buildHistory.Add((fileName + ".class"), Some(File.GetLastWriteTimeUtc(System.IO.Path.Combine(location,fileName)+".class")))
+                let fullLocation = if location = "" then System.IO.Path.GetFullPath(".\\") else System.IO.Path.GetFullPath(location)
+                let sourceFileLocation = System.IO.Path.Combine(fullLocation, fileName) + ".java"
+                let classFileLocation = 
+                    if bi.GetConfigurationValue("AutomaticClassFileCopy") = "true" then
+                        System.IO.Path.Combine(System.IO.Path.GetFullPath(".\\"), fileName) + ".class"
                     else
-                        buildHistory.Remove(fileName + ".java") |> ignore
-                        buildHistory.Remove(fileName + ".class") |> ignore
-                        buildHistory.Add((fileName + ".java"), Some(File.GetLastWriteTimeUtc(System.IO.Path.Combine(location,fileName)+".java")))
-                        buildHistory.Add((fileName + ".class"), None)
+                        System.IO.Path.Combine(fullLocation, fileName) + ".class"
+                if File.Exists(sourceFileLocation) then
+                    if File.Exists(classFileLocation) then
+                        buildHistory.Remove(sourceFileLocation) |> ignore
+                        buildHistory.Add(sourceFileLocation, Some(File.GetLastWriteTimeUtc(classFileLocation)))
+                    else
+                        buildHistory.Remove(sourceFileLocation) |> ignore
+                        buildHistory.Add(sourceFileLocation, None)
                 else
-                    failwith ("Source file missing : " + fileName + ".java")
+                    failwith ("Source file missing : " + sourceFileLocation)
             _BuildHistory <- buildHistory
 
     /// <summary>Check if source file is updated since last build.</summary>
@@ -239,24 +241,53 @@ type BuildInfo(files : Dictionary<string, string> [], mains : string [], runs: s
         let javaFileName = fileName + ".java"
         let classFileName = fileName + ".class"
         let location = (Array.Find(_files, (fun x -> x.Item("name") = fileName))).Item("location")
-        let classBuildTime = ref(Some(System.DateTime.UtcNow))
-        let mutable getBuildInfo = _BuildHistory.TryGetValue(classFileName, classBuildTime)
+        let fullLocation = if location = "" then System.IO.Path.GetFullPath(".\\") else System.IO.Path.GetFullPath(location)
+        let sourceFileLocation = System.IO.Path.Combine(fullLocation, fileName) + ".java"
+        let buildTime = ref(Some(System.DateTime.UtcNow))
+        let mutable getBuildInfo = _BuildHistory.TryGetValue(sourceFileLocation, buildTime)
         if not getBuildInfo then
+            if File.Exists(sourceFileLocation) then
+                let mutable isPreviousSourceFileExists = false
+                let previousData = ref(Some(System.DateTime.UtcNow))
+                let mutable buildHistoryEnum = _BuildHistory.GetEnumerator()
+                while (not isPreviousSourceFileExists) && buildHistoryEnum.MoveNext() do
+                    if (buildHistoryEnum.Current.Key.Contains(fileName + ".java")) then
+                        previousData.Value <- _BuildHistory.Item(buildHistoryEnum.Current.Key)
+                        _BuildHistory.Remove(buildHistoryEnum.Current.Key) |> ignore
+                        isPreviousSourceFileExists <- true
+                if isPreviousSourceFileExists then
+                    _BuildHistory.Add(sourceFileLocation, previousData.Value)
+                    bi.WriteBuildHistory()
+                    true
+                else
+                    raise InvalidBuildHistory
+            else
+                raise InvalidBuildHistory
+        else if buildTime.Value.IsNone then
             true
-        else if classBuildTime.Value.IsNone then
-            true 
         else
-            let javaWriteTime = File.GetLastWriteTimeUtc(System.IO.Path.Combine(location, javaFileName))
-            if (javaWriteTime.CompareTo(classBuildTime.Value.Value) > 0) then
+            let javaWriteTime = File.GetLastWriteTimeUtc(sourceFileLocation)
+            if (javaWriteTime.CompareTo(buildTime.Value.Value) > 0) then
                 true
             else
                 false
+
+    /// <summary>Check if class file with given name exists.</summary>
+    /// <param name="fileName">Name of class file to be checked for existence.</param>
+    /// <returns>True when class file exists, false when does not.</returns>
+    member bi.isClassFileExists (fileName : string) =
+        let location = (Array.Find(_files, (fun x -> x.Item("name") = fileName))).Item("location")
+        if bi.GetConfigurationValue("AutomaticClassFileCopy") = "true" then
+            File.Exists(System.IO.Path.Combine(System.IO.Path.GetFullPath(".\\"), fileName) + ".class")
+        else
+            File.Exists(System.IO.Path.Combine(System.IO.Path.GetFullPath(location), fileName) + ".class")
 
     /// <summary>Build current project. Things done are : Compilation, updating build history, printing build result and run-after-build.</summary>
     member bi.Build(buildFile : BuildInfo) =
         let compileSuccess = ref ([] : string list)
         let compileFail = ref ([] : string list)
         let compileUpToDate = ref ([] : string list)
+        let getBuildHistoryResult = buildFile.GetBuildHistory()
         for file in buildFile.files do
             let fileName = file.Item("name")
             let fileLocationType = file.Item("locationType")
@@ -270,13 +301,16 @@ type BuildInfo(files : Dictionary<string, string> [], mains : string [], runs: s
             printfn "=================================================="
             printfn "Now compiling '%s'..." (fileName+".java")
             printfn "\n"
-            if buildFile.isUpdated(fileName) then
+            if buildFile.isUpdated(fileName) || not (buildFile.isClassFileExists(fileName)) then
                 let proc = new System.Diagnostics.Process()
                 let procStartInfo = new System.Diagnostics.ProcessStartInfo()
-                printfn "Command to be executed : %s" ("javac " + "-classpath" + " " + location + " " + (System.IO.Path.Combine(location, (fileName + ".java")))+" "+(buildFile.CompilerOptionsToString()))
                 procStartInfo.WindowStyle <- System.Diagnostics.ProcessWindowStyle.Hidden
                 procStartInfo.FileName <- "javac "
-                procStartInfo.Arguments <- "-classpath" + " " + location + " " + (System.IO.Path.Combine(location, (fileName + ".java"))) + " " + (buildFile.CompilerOptionsToString())
+                if AutomaticClassFileCopyConfig && (not (directoryCheck(file.Item("location")))) then 
+                    printfn "\nAutomaticClassFileCopy ENABLED. Added class copy option.\n"
+                    procStartInfo.Arguments <- "-d" + " " + System.IO.Directory.GetCurrentDirectory() + " "
+                procStartInfo.Arguments <- procStartInfo.Arguments + "-classpath" + " " + location + " " + (System.IO.Path.Combine(location, (fileName + ".java"))) + " " + (buildFile.CompilerOptionsToString())
+                printfn "Command to be executed : %s" (procStartInfo.FileName + procStartInfo.Arguments)
                 procStartInfo.RedirectStandardOutput <- true
                 procStartInfo.RedirectStandardError <- true
                 procStartInfo.UseShellExecute <- false
@@ -288,15 +322,13 @@ type BuildInfo(files : Dictionary<string, string> [], mains : string [], runs: s
                 if (procError.Length = 0 && procResult.Length = 0) then
                     compileSuccess.Value <- List.append compileSuccess.Value [fileName]
                     printfn "Execution Result(output) : \nSuccess."
-                    if not (directoryCheck(file.Item("location"))) then 
-                        copyClass (System.IO.Path.Combine(location, (fileName + ".class"))) (fileName + ".class")
+                    if AutomaticClassFileCopyConfig && (not (directoryCheck(file.Item("location")))) then 
                         printfn "\nAutomaticClassFileCopy ENABLED. Successfully copied class file to current directory.\n"
                     printfn "\nFinished compiling '%s'. Comilation result : SUCCESS" (fileName+".java")
                 else if (procError.Length = 0 && procResult.Length > 0) then
                     compileSuccess.Value <- List.append compileSuccess.Value [fileName]
                     printfn "Execution Result(output) : \n%s" procResult
-                    if not (directoryCheck(file.Item("location"))) then 
-                        copyClass (System.IO.Path.Combine(location, (fileName + ".class"))) (fileName + ".class")
+                    if AutomaticClassFileCopyConfig && (not (directoryCheck(file.Item("location")))) then 
                         printfn "\nAutomaticClassFileCopy ENABLED. Successfully copied class file to current directory.\n"
                     printfn "Finished compiling '%s'. Comilation result : SUCCESS" (fileName+".java")
                 else

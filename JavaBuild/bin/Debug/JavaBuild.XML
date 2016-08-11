@@ -22,6 +22,11 @@
  <param name="fileName">File name to be checked, without file name extension.</param>
  <returns>True when it is updated, false when it is not updated.</returns>
 </member>
+<member name="M:JavaBuild.BuildInfo.isClassFileExists(System.String)">
+ <summary>Check if class file with given name exists.</summary>
+ <param name="fileName">Name of class file to be checked for existence.</param>
+ <returns>True when class file exists, false when does not.</returns>
+</member>
 <member name="P:JavaBuild.BuildInfo.runs">
  <summary>Files to be run after build is successful.
  Set of run-after-build files should be subset of "mains".</summary>
