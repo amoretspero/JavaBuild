@@ -5,8 +5,14 @@ Other platform support will be added soon.
   
   
 ## Status  
-Version : 0.4.2.2  
+Version : 0.4.3.0  
 Stable : Stable  
+
+## Updates  
+  
+### 0.4.2.2 -> 0.4.3.0 (2016-08-12)  
+Supports automatic class file copying to build root folder(where <code>build.json</code> file exists).  
+Set <code>AutomaticClassFileCopy</code> option to <code>"true"</code> to enable feature.  
   
 ## Bugfix  
   
@@ -16,6 +22,12 @@ Before build, JavaBuild will get build history file, update it and re-write it a
 As before, if build history does not exist, it will just make one.  
   
 ## Supported Features  
+  
+### Source file location support  
+Users can specify where to find source file of given name.  
+Relative and absolute paths are both supported, and user should omit ending backslash.  
+This can be set when adding files to "files" array.  
+Internally, all locations are handled as absolute path.  
   
 ### Java file compilation  
 JavaBuild will compile all <code>.java</code> files listed in "files" array.  
@@ -51,6 +63,41 @@ JavaBuild keeps track of last compilation time for each class files.
 If source file is not updated since class file has been compiled, JavaBuild will pass that file with UP-TO-DATE message.  
 Tracking info is in <code>(Location Of .build file)/.JavaBuildHistory</code>.  
   
+### Automatic class file copying  
+JavaBuild will copy class file to build root folder when this option is enabled.  
+By this way, running simple java program does not have to explicitly specify where to find class files.  
+  
+## Configurations  
+  
+### AutomaticClassfileCopy  
+Description : Automatically copies generated class file to build root folder.  
+Configuration : **"AutomaticClassFileCopy"**  
+Default value : **"true"** (*Important* : value is string!)  
+  
+## <code>build.json</code>  
+  
+### "files"  
+Files to be compiled. Array of key-value pairs.  
+**"name"** : Name of source file, excluding file type extension. Should not be empty.  
+**"location"** : Location of source file. Empty string means build root folder(same as <code>build.json</code> file).
+If not specified in configurations, generated class file will be stored in this location.
+Supports both relative and absolute paths.  
+**"locationType"** : Indicates type of location. "relative" or "absolute".  
+
+### "mains"  
+Array of files that have main method in them.  
+  
+### "runs"  
+Array of files that will be executed after build, by RUN-AFTER-BUILD.  
+If array is empty, RUN-AFTER-BUILD will not execute.  
+  
+### "CompileOptions"  
+Key-value pairs of <code>javac</code> compile options.  
+See "Java Compile Options" section in "Supported Features".  
+  
+### "Configurations"  
+Key-value pairs of JavaBuild configurations.  
+See "Configurations" section.  
   
 ## Usage  
 Below example code is for build file.  
@@ -58,10 +105,26 @@ It should have name <code>build.json</code>
 ```json
 {
   "files" : [
-    "AnalyticalSolverCalc",
-    "AnalyticalSolverMain",
-    "PiCalc",
-    "PiMain"
+    {
+      "name": "AnalyticalSolverCalc",
+      "location": "test",
+      "locationType": "relative"
+    },
+    {
+      "name": "AnalyticalSolverMain",
+      "location": "test",
+      "locationType": "relative"
+    },
+    {
+      "name": "PiCalc",
+      "location": "",
+      "locationType": "relative",
+    },
+    {
+      "name": "PiMain",
+      "location": "",
+      "locationType": "relative"
+    }
   ],
   "mains" : [
     "AnalyticalSolverMain",
@@ -74,6 +137,9 @@ It should have name <code>build.json</code>
     "ClassPath" : "",
     "CharacterEncoding" : "",
     "TerminateOnWarning" : false
+  },
+  "Configurations" : {
+    "AutomaticClassFileCopy" : "true"
   }
 }
 ```
@@ -119,7 +185,7 @@ If you have F# installed, just **Run the solution!**
   
 ### Build Executable - Command line  
 Go to source folder and type below.  
-<code>fsc -o:JavaBuild.exe --target:exe --standalone --staticlink:Newtonsoft.Json -r:.\bin\Debug\Newtonsoft.Json.dll Program.fs</code>  
+<code>fsc -o:JavaBuild.exe --target:exe --standalone --staticlink:Newtonsoft.Json -r:.\bin\Debug\Newtonsoft.Json.dll AssemblyInfo.fs buildInfo.fs Program.fs</code>  
   
 ## Download execution file  
 Download the <code>JavaBuild.exe</code> file in <code>Download</code> folder.  

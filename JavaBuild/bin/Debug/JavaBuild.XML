@@ -18,7 +18,9 @@
  <summary>Print compile options.</summary>
 </member>
 <member name="M:JavaBuild.BuildInfo.isUpdated(System.String)">
- <summary>Check if source file is updated since last build.</summary>
+ <summary>Check if source file is updated since last build.
+ This method assumes updated when source file has been moved, or when build time is None, 
+ or when current source file has been modified after build time.</summary>
  <param name="fileName">File name to be checked, without file name extension.</param>
  <returns>True when it is updated, false when it is not updated.</returns>
 </member>
@@ -50,7 +52,8 @@
  <summary>Write build history to build history file.</summary>
 </member>
 <member name="M:JavaBuild.BuildInfo.UpdateBuildHistory">
- <summary>Update build history.</summary>
+ <summary>Update build history. To get the build time, this method will check for class file and get the last write time of that file.
+ If corresponding class file does not exists, it will assume that source file has not been compiled yet.</summary>
 </member>
 <member name="M:JavaBuild.BuildInfo.PrintBuildHistory">
  <summary>Print build history.</summary>
@@ -82,10 +85,20 @@
  <returns>Generated javac compile option string.</summary>
 </member>
 <member name="M:JavaBuild.BuildInfo.Build(JavaBuild.BuildInfo)">
- <summary>Build current project. Things done are : Compilation, updating build history, printing build result and run-after-build.</summary>
+ <summary>Build current project. 
+ Things done are : Get build history -> Compilation -> Updating build history -> Printing build result -> Run-After-Build</summary>
 </member>
 <member name="T:JavaBuild.BuildInfo">
  <summary>Class for java build information file.</summary>  
+</member>
+<member name="T:JavaBuild.FileNotFound">
+ <summary>Thrown when file is not found.</summary>
+</member>
+<member name="T:JavaBuild.InvalidBuildHistory">
+ <summary>Thrown when build history file has invalid value, i.e. invalid file name or date.</summary>
+</member>
+<member name="T:JavaBuild.InvalidConfigurationKey">
+ <summary>Thrown when given configuration key is not a valid configuration.</summary>
 </member>
 </members>
 </doc>
